@@ -1,0 +1,92 @@
+---
+# 使用 inventory hosts 设置为节点 hostname
+- name: Assign inventory name to unconfigured hostname
+  become: true
+  command: "hostnamectl set-hostname {{ inventory_hostname }}"
+
+# 使用 inventory hosts 填充节点 /etc/hosts 文件
+- name: Populate inventory into hosts file
+  become: true
+  lineinfile:
+    dest: "/etc/hosts"
+    regexp: '^{{ hostvars[item].ansible_host }}(\s+.*)$'
+    line: "{{ hostvars[item].ansible_host }}  {{ item }}"
+  when: hostvars[item].ansible_host is defined
+  with_items: "{{ groups.all }}"
+
+# 检查 /usr/sbin/iptables-legacy 是否存在
+- name: Check if /usr/sbin/iptables-legacy exists
+  stat:
+    path: /usr/sbin/iptables-legacy
+  register: iptables_legacy_result
+
+# 确保 iptables 工具不使用 nftables 后端
+- name: Update alternatives iptables legacy
+  alternatives:
+    name: iptables
+    path: /usr/sbin/iptables-legacy
+  when: iptables_legacy_result.stat.exists
+
+# 关闭防火墙并不随开机启动
+- name: Stop and disable firewalld
+  become: true
+  service:
+    name: firewalld
+    state: stopped
+    enabled: false
+
+# 临时关闭 swap
+- name: Disable swap for current session
+  become: true
+  command: "swapoff -a"
+
+# 注释 /etc/fstab 中 swap 相关项
+- name: Disable swap permanently, persist reboots
+  become: true
+  replace:
+    path: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '# \1\2\3swap\4'
+
+# 设置 vm.swappiness 为 0
+- name: Set vm.swappiness to 0
+  sysctl:
+    name: vm.swappiness
+    value: "0"
+    state: present
+    reload: true
+
+# 将 SELinux 设置为 permissive 模式
+- name: Put SELinux in permissive mode, logging actions that would be blocked.
+  selinux:
+    policy: targeted
+    state: permissive
+
+# 内核加载 br_netfilter 模块
+- name: Enable br_netfilter module
+  become: true
+  modprobe:
+    name: br_netfilter
+    state: present
+
+# 检查内核中 net.bridge.bridge-nf-call-iptables 是否存在
+- name: Check if bridge-nf-call-iptables key exists
+  command: "sysctl net.bridge.bridge-nf-call-iptables"
+  failed_when: false
+  changed_when: false
+  register: sysctl_bridge_nf_call_iptables
+
+# 确保 iptables 能够监控容器的网络通信
+- name: Enable bridge-nf-call tables
+  sysctl:
+    name: "{{ item }}"
+    state: present
+    sysctl_file: "/etc/sysctl.d/k8s.conf"
+    value: "1"
+    reload: true
+  when: sysctl_bridge_nf_call_iptables.rc == 0
+  with_items:
+    - net.ipv4.ip_forward
+    - net.bridge.bridge-nf-call-iptables
+    - net.bridge.bridge-nf-call-ip6tables
+
