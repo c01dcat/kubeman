@@ -5,3 +5,4 @@
   roles:
     - { role: bootstrap }
     - { role: docker }
+    - { role: kubeadm }
