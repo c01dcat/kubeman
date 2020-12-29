@@ -1,0 +1,37 @@
+---
+# 添加阿里云 docker-ce 源
+- name: Add Aliyun docker-ce repository
+  command: "yum-config-manager --add-repo {{ docker_repository }}"
+
+# 生成缓存
+- name: Yum makecahe
+  command:
+    cmd: "yum makecache fast"
+    warn: false
+
+# 安装 docker
+- name: Install docker
+  yum:
+    name: "docker-ce-{{ docker_version }}, docker-ce-cli-{{ docker_version }}, containerd.io"
+    state: present
+
+# 启动 docker 并随开机启动
+- name: Start and enable docker
+  service:
+    name: docker
+    state: started
+    enabled: true
+    daemon-reload: true
+
+# 拷贝 daemon.json 文件
+- name: Copy daemon json file
+  template:
+    src: docker.daemon.json.j2
+    dest: "{{ docker_config_dir }}/daemon.json"
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - Docker | restart docker
+
+- meta: flush_handlers

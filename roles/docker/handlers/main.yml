@@ -1,0 +1,7 @@
+---
+# 重新加载守护进程，重启 docker
+- name: Docker | restart docker
+  service:
+    name: docker
+    state: restarted
+    daemon-reload: true
