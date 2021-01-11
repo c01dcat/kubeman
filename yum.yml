@@ -1,0 +1,45 @@
+---
+# 更换 yum 源
+- hosts: all
+  vars:
+    - yum_repos_dir: "/etc/yum.repos.d"
+    - ius_enabled: true # Inline with Upstream Stable
+    - update_packages: true
+  remote_user: root
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Backup base repo file
+      copy:
+        src: "{{ yum_repos_dir }}/CentOS-Base.repo"
+        dest: "{{ yum_repos_dir }}/CentOS-Base.repo.bak"
+        remote_src: true
+
+    - name: Remove old base repo file
+      file:
+        path: "{{ yum_repos_dir }}/CentOS-Base.repo"
+        state: absent
+
+    - name: Download aliyun mirror repo file
+      get_url:
+        url: "http://mirrors.aliyun.com/repo/Centos-7.repo"
+        dest: "{{ yum_repos_dir }}/CentOS-Base.repo"
+        mode: 0644
+
+    - name: Install ius package
+      yum:
+        name: https://repo.ius.io/ius-release-el7.rpm, https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+        state: present
+      when: ius_enabled
+
+    - name: Yum clean all
+      command:
+        cmd: "yum clean all"
+        warn: false
+
+    - name: Update all packages
+      yum:
+        update_cache: true
+        name: "*"
+        state: latest
+      when: update_packages
