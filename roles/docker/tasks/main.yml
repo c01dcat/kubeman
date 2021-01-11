@@ -1,6 +1,6 @@
 ---
-# 添加阿里云 docker-ce 源
-- name: Add Aliyun docker-ce repository
+# 添加 docker-ce 源
+- name: Add docker-ce repository
   command: "yum-config-manager --add-repo {{ docker_repository }}"
 
 # 生成缓存

@@ -1,13 +1,11 @@
 all:
   hosts:
     master:
-      ansible_host: 10.1.0.100
+      ansible_host: 192.168.1.100
     node1:
-      ansible_host: 10.1.0.101
+      ansible_host: 192.168.1.101
     node2:
-      ansible_host: 10.1.0.102
-    node3:
-      ansible_host: 10.1.0.103
+      ansible_host: 192.168.1.102
   children:
     k8s_master:
       hosts:
@@ -16,4 +14,3 @@ all:
       hosts:
         node1:
         node2:
-        node3:

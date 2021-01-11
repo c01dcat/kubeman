@@ -1,0 +1,57 @@
+---
+# 升级内核
+- hosts: all
+  vars:
+    kernel_version: ml # ml: latest stable mainline kernels. lt：long-term support kernels
+  remote_user: root
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Import GPG key
+      command:
+        cmd: "rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org"
+        warn: false
+
+    - name: Install ELRepo
+      yum:
+        name: "https://www.elrepo.org/elrepo-release-7.el7.elrepo.noarch.rpm"
+        state: present
+
+    - name: Install elrepo-kernel
+      yum:
+        name: kernel-{{ kernel_version }}
+        enablerepo: elrepo-kernel
+        state: present
+
+    - name: Set grub2 default entry
+      command: "grub2-set-default 0"
+
+    - name: Reboot
+      reboot:
+        reboot_timeout: 300
+
+    - name: Wating for server to restart
+      wait_for_connection:
+        connect_timeout: 20
+        sleep: 5
+        delay: 5
+        timeout: 300
+
+    - name: Confirm kernel version
+      command: "uname -r"
+      register: new_kernel_version
+
+    - debug: var=new_kernel_version.stdout
+
+    - name: List useless kernels
+      shell:
+        cmd: "rpm -qa | grep kernel | grep -v $(uname -r)"
+        warn: false
+      register: useless_kernels_result
+      ignore_errors: true
+
+    - name: Remove useless kernels
+      yum:
+        name: '{{ useless_kernels_result.stdout | regex_replace("\n", ",") }}'
+        state: absent
+      ignore_errors: true

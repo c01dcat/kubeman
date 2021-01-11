@@ -1,0 +1,30 @@
+---
+# 添加 kubernetes 源
+- name: Add kubernetes repository
+  yum_repository:
+    name: kubernetes
+    description: Kubernetes
+    baseurl: "{{ kubernetes_repository }}"
+    enabled: true
+    gpgcheck: true
+    repo_gpgcheck: true
+    gpgkey: "{{ kubernetes_yum_gpgkey }} {{ kubernetes_rpm_package_gpgkey }}"
+    exclude:
+      - kubelet
+      - kubeadm
+      - kubectl
+
+# 安装 kubeadm kubelet kubectl
+- name: Install kubeadm kubelet kubectl
+  yum:
+    name: "kubeadm-{{ kubernetes_version }}, kubelet-{{ kubernetes_version }}, kubectl-{{ kubernetes_version }}"
+    state: present
+    disable_excludes: kubernetes
+
+# 启动 kubelet 并随开机启动
+- name: Start and enable kubelet
+  service:
+    name: kubelet
+    state: started
+    enabled: true
+    daemon-reload: true

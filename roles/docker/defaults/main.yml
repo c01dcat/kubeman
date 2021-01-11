@@ -6,7 +6,6 @@ docker_repository: "http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.r
 docker_log_opts_max_size: "100m"
 docker_log_opts_max_file: "10"
 
-docker_service_systemd_dir: "/etc/systemd/system/docker.service.d"
 docker_config_dir: "/etc/docker"
 
 # docker_data_root: "/var/lib/docker"
