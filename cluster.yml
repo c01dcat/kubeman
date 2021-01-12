@@ -14,3 +14,11 @@
     - import_role:
         name: kubeadm
         tasks_from: init.yml
+
+- hosts: all
+  any_errors_fatal: true
+  gather_facts: false
+  tasks:
+    - import_role:
+        name: kubeadm
+        tasks_from: join.yml
