@@ -1,0 +1,4 @@
+kubeadm_init_command: >-
+    kubeadm init --kubernetes-version={{ kubernetes_version[:-2] }}
+    --control-plane-endpoint={{ k8s_apiserver_dns_name }}:{{ k8s_apiserver_port }}
+    --image-repository={{ kubernetes_image_repository }}

@@ -1,0 +1,11 @@
+---
+- debug:
+    msg: "{{ kubeadm_init_command }}"
+
+# 初始化 kubernetes 控制平面节点
+- name: kubeadm init
+  command: "{{ kubeadm_init_command }}"
+  notify:
+    - Set up kubectl
+
+- meta: flush_handlers
