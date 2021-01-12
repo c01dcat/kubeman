@@ -1,0 +1,6 @@
+---
+# node 节点加入集群
+- name: Kubernetes node join cluster
+  command: "{{ hostvars[groups['k8s_master'][0]].node_join_command }}"
+  when:
+    - inventory_hostname in groups.k8s_node

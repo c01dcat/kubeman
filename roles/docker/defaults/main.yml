@@ -1,5 +1,5 @@
 ---
-docker_version: "20.10.1"
+docker_version: "20.10.2"
 
 docker_repository: "http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo"
 

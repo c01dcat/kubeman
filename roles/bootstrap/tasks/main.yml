@@ -90,3 +90,12 @@
     - net.bridge.bridge-nf-call-iptables
     - net.bridge.bridge-nf-call-ip6tables
 
+# 在 /etc/hosts 中添加 cluster endpoint 记录
+- name: Populate cluster endpoint to /etc/hosts
+  become: true
+  lineinfile:
+    dest: "/etc/hosts"
+    regexp: '^{{ hostvars[groups["k8s_master"][0]].ansible_host }}(\s+.*)$'
+    line: "{{ hostvars[groups['k8s_master'][0]].ansible_host }}  {{ groups['k8s_master'][0] }}  {{ k8s_apiserver_dns_name }}"
+  when: groups.k8s_master | length == 1
+

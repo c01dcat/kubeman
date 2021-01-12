@@ -6,3 +6,19 @@
     - { role: bootstrap }
     - { role: docker }
     - { role: kubeadm }
+
+- hosts: k8s_master[0]
+  any_errors_fatal: true
+  gather_facts: false
+  tasks:
+    - import_role:
+        name: kubeadm
+        tasks_from: init.yml
+
+- hosts: all
+  any_errors_fatal: true
+  gather_facts: false
+  tasks:
+    - import_role:
+        name: kubeadm
+        tasks_from: join.yml

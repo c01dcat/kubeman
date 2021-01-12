@@ -1,6 +1,8 @@
 ---
 kubernetes_version: "1.20.1-0"
 
-kubernetes_repository: "https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-$basearch"
-kubernetes_yum_gpgkey: "https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg"
-kubernetes_rpm_package_gpgkey: "https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg"
+kuberadm_repository: "https://mirrors.aliyun.com/kubernetes/yum/repos/kubernetes-el7-$basearch"
+kuberadm_yum_gpgkey: "https://mirrors.aliyun.com/kubernetes/yum/doc/yum-key.gpg"
+kuberadm_rpm_package_gpgkey: "https://mirrors.aliyun.com/kubernetes/yum/doc/rpm-package-key.gpg"
+
+kubernetes_image_repository: "registry.aliyuncs.com/google_containers"

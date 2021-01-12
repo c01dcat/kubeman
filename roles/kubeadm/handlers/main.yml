@@ -1,2 +1,37 @@
 ---
-# handlers file for roles/kubeadm
+# 配置 kubectl
+- name: Set up kubectl
+  command: "/bin/true"
+  notify:
+    - kubectl | Create .kube directory
+    - kubectl | Copy admin.conf to user's kube config
+    - kubectl | Source kubectl completion script
+    - kubectl | Add the completion script to the /etc/bash_completion.d directory
+
+# 创建 .kube 目录
+- name: kubectl | Create .kube directory
+  file:
+    path: $HOME/.kube
+    state: directory
+    mode: 0755
+
+# 拷贝 admin.conf 文件
+- name: kubectl | Copy admin.conf to user's kube config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: $HOME/.kube/config
+    owner: root
+    group: root
+    mode: 0700
+    remote_src: yes
+
+# 使 kubectl 自动补全脚本生效
+- name: kubectl | Source kubectl completion script
+  lineinfile:
+    path: $HOME/.bashrc
+    line: "source <(kubectl completion bash)"
+    create: true
+
+# 将 kubectl 自动补全脚本添加到 /etc/bash_completion.d 目录
+- name: kubectl | Add the completion script to the /etc/bash_completion.d directory
+  shell: "kubectl completion bash >/etc/bash_completion.d/kubectl"
