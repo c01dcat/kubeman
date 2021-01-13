@@ -25,6 +25,12 @@
     mode: 0700
     remote_src: yes
 
+# 安装 bash-completion
+- name: kubectl | Install bash-completion
+  yum:
+    name: bash-completion
+    state: present
+
 # 使 kubectl 自动补全脚本生效
 - name: kubectl | Source kubectl completion script
   lineinfile:
