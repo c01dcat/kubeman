@@ -1,0 +1,5 @@
+---
+# 安装 calico
+- name: Install calico
+  command: "kubectl apply -f https://docs.projectcalico.org/archive/{{ calico_version }}/manifests/calico.yaml"
+  when: inventory_hostname == (groups.k8s_master | first)
