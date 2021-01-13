@@ -1,0 +1,60 @@
+---
+# 重置 kubernetes 集群
+- hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    reset_kubernetes: true # 重置 kubernetes 集群
+    flush_iptables: true # 清楚 iptables 记录
+  tasks:
+    - name: uncordon nodes
+      command: "kubectl uncordon {{ item }}"
+      with_items:
+        - "{{ groups.all }}"
+      when:
+        - reset_kubernetes
+        - inventory_hostname == (groups.k8s_master | first)
+
+    - name: drain nodes
+      command: "kubectl drain {{ item }}  --delete-local-data --force --ignore-daemonsets"
+      with_items:
+        - "{{ groups.k8s_node }}"
+      when:
+        - reset_kubernetes
+        - inventory_hostname == (groups.k8s_master | first)
+
+    - name: kubeadm reset on nodes
+      shell: "echo y | kubeadm reset"
+      when:
+        - reset_kubernetes
+        - inventory_hostname in groups.k8s_node
+
+    - name: flush iptables
+      shell: "iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X"
+      when:
+        - reset_kubernetes
+        - flush_iptables
+        - inventory_hostname in groups.k8s_node
+
+    - name: delete nodes
+      command: "kubectl delete node {{ item }}"
+      with_items:
+        - "{{ groups.k8s_node }}"
+      when:
+        - reset_kubernetes
+        - inventory_hostname == (groups.k8s_master | first)
+
+    - name: kubeadm reset on control plane
+      shell: "echo y | kubeadm reset"
+      when:
+        - reset_kubernetes
+        - inventory_hostname in groups.k8s_master
+
+    - name: Clean configuration files
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - /etc/cni/net.d
+        - $HOME/.kube
+      when: reset_kubernetes
