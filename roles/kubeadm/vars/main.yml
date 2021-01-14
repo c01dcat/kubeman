@@ -1,4 +1,10 @@
+---
 kubeadm_init_command: >-
     kubeadm init --kubernetes-version={{ kubernetes_version[:-2] }}
+    {% if groups.k8s_master | length > 1 %}
+    --control-plane-endpoint={{ loadbalancer_apiserver_dns_name }}:{{ loadbalancer_apiserver_port }}
+    --upload-certs
+    {% else %}
     --control-plane-endpoint={{ k8s_apiserver_dns_name }}:{{ k8s_apiserver_port }}
+    {% endif %}
     --image-repository={{ kubernetes_image_repository }}

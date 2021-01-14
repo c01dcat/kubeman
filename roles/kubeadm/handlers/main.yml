@@ -5,6 +5,7 @@
   notify:
     - kubectl | Create .kube directory
     - kubectl | Copy admin.conf to user's kube config
+    - kubectl | Install bash-completion
     - kubectl | Source kubectl completion script
     - kubectl | Add the completion script to the /etc/bash_completion.d directory
 

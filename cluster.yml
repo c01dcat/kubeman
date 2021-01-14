@@ -7,6 +7,14 @@
     - { role: docker }
     - { role: kubeadm }
 
+- hosts: k8s_master
+  any_errors_fatal: true
+  gather_facts: false
+  tasks:
+    - include_role:
+        name: load-balancer
+      when: groups.k8s_master | length > 1
+
 - hosts: k8s_master[0]
   any_errors_fatal: true
   gather_facts: false

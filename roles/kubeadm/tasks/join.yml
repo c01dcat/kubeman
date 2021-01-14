@@ -1,6 +1,19 @@
 ---
+# 其他控制平面节点节点加入集群
+- name: Kubernetes other masters join cluster
+  command: "{{ hostvars[groups['k8s_master'][0]].master_join_command }}"
+  when:
+    - groups.k8s_master | length > 1
+    - inventory_hostname in groups.k8s_master
+    - inventory_hostname != (groups.k8s_master | first)
+  notify:
+    - Set up kubectl
+
 # node 节点加入集群
 - name: Kubernetes node join cluster
   command: "{{ hostvars[groups['k8s_master'][0]].node_join_command }}"
   when:
+    - groups.k8s_node is defined
     - inventory_hostname in groups.k8s_node
+
+- meta: flush_handlers

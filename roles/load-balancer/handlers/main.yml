@@ -1,0 +1,14 @@
+---
+# 重新加载守护进程，重启 haproxy
+- name: Load Balancer | restart haproxy
+  service:
+    name: haproxy
+    state: restarted
+    daemon-reload: true
+
+# 重新加载守护进程，重启 keepalive
+- name: Load Balancer | restart keepalived
+  service:
+    name: keepalived
+    state: restarted
+    daemon-reload: true

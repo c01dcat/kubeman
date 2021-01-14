@@ -1,0 +1,5 @@
+---
+host_keepalived_config_dir: "/etc/keepalived"
+host_haproxy_config_dir: "/etc/haproxy"
+
+keepalived_interface: enp1s0 # host 上以太网卡接口名称

@@ -1,2 +1,6 @@
 k8s_apiserver_port: 6443
 k8s_apiserver_dns_name: cluster-endpoint
+
+loadbalancer_apiserver_vip: 192.168.1.200 # 高可用 master 所用的 vip
+loadbalancer_apiserver_port: 8443
+loadbalancer_apiserver_dns_name: vip.cluster.local

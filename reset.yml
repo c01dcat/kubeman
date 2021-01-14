@@ -21,12 +21,14 @@
         - "{{ groups.k8s_node }}"
       when:
         - reset_kubernetes
+        - groups.k8s_node is defined
         - inventory_hostname == (groups.k8s_master | first)
 
     - name: kubeadm reset on nodes
       shell: "echo y | kubeadm reset"
       when:
         - reset_kubernetes
+        - groups.k8s_node is defined
         - inventory_hostname in groups.k8s_node
 
     - name: flush iptables
@@ -34,6 +36,7 @@
       when:
         - reset_kubernetes
         - flush_iptables
+        - groups.k8s_node is defined
         - inventory_hostname in groups.k8s_node
 
     - name: delete nodes
@@ -42,6 +45,7 @@
         - "{{ groups.k8s_node }}"
       when:
         - reset_kubernetes
+        - groups.k8s_node is defined
         - inventory_hostname == (groups.k8s_master | first)
 
     - name: kubeadm reset on control plane
