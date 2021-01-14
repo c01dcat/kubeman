@@ -1,0 +1,51 @@
+---
+# 安装 keepalived 和 haproxy
+- name: Install keepalived and haproxy
+  yum:
+    name: keepalived, haproxy
+    state: present
+
+# 开启 haproxy 服务并随开机启动
+- name: Start and enable haproxy
+  service:
+    name: haproxy
+    state: started
+    enabled: true
+
+# 开启 keepalived 服务并随开机启动
+- name: Start and enable keepalived
+  service:
+    name: keepalived
+    state: started
+    enabled: true
+
+# 上传 haproxy 配置文件
+- name: Copy haproxy.cfg file
+  template:
+    src: haproxy.cfg.j2
+    dest: "{{ host_haproxy_config_dir }}/haproxy.cfg"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Load Balancer | restart haproxy
+
+# 上传 check_apiserver 脚本
+- name: Copy check_apiserver.sh
+  template:
+    src: check_apiserver.sh.j2
+    dest: "{{ host_keepalived_config_dir }}/check_apiserver.sh"
+    owner: root
+    group: root
+    mode: 0644
+
+# 上传 keepalived 配置文件
+- name: Copy keepalived.conf file
+  template:
+    src: keepalived.conf.j2
+    dest: "{{ host_keepalived_config_dir }}/keepalived.conf"
+    owner: root
+    group: root
+    mode: 0644
+  notify: Load Balancer | restart keepalived
+
+- meta: flush_handlers

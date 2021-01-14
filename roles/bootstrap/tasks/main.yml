@@ -99,3 +99,10 @@
     line: "{{ hostvars[groups['k8s_master'][0]].ansible_host }}  {{ groups['k8s_master'][0] }}  {{ k8s_apiserver_dns_name }}"
   when: groups.k8s_master | length == 1
 
+# 在 /etc/hosts 中添加 load balancer apiserver 记录
+- name: Populate loadbalancer to /etc/hosts
+  become: true
+  lineinfile:
+    dest: "/etc/hosts"
+    line: "{{ loadbalancer_apiserver_vip }}  {{ loadbalancer_apiserver_dns_name }}"
+  when: groups.k8s_master | length > 1

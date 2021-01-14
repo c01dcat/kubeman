@@ -1,0 +1,11 @@
+#!/bin/sh
+
+errorExit() {
+    echo "*** $*" 1>&2
+    exit 1
+}
+
+curl --silent --max-time 2 --insecure https://localhost:{{ k8s_apiserver_port }}/ -o /dev/null || errorExit "Error GET https://localhost:{{ k8s_apiserver_port }}/"
+if ip addr | grep -q {{ loadbalancer_apiserver_vip }}; then
+    curl --silent --max-time 2 --insecure https://{{ loadbalancer_apiserver_vip }}:{{ loadbalancer_apiserver_port }}/ -o /dev/null || errorExit "Error GET https://{{ loadbalancer_apiserver_vip }}:{{ loadbalancer_apiserver_port }}/"
+fi
