@@ -1,0 +1,33 @@
+---
+# 下载 helm 二进制压缩包
+- name: Download helm binary tarball
+  get_url:
+    url: "{{ helm_download_url }}/helm-{{ helm_version }}-linux-amd64.tar.gz"
+    dest: "{{ helm_download_dir }}"
+    checksum: "sha256:{{ helm_github_release_checksum }}"
+  when: inventory_hostname in groups.k8s_master
+
+# 解压 helm 二进制压缩包
+- name: Unarchive helm binary tarball
+  unarchive:
+    src: "{{ helm_download_dir }}"
+    dest: "/tmp"
+    remote_src: true
+  when: inventory_hostname in groups.k8s_master
+
+# 移动 helm 二进制文件至系统目录
+- name: Move helm binary to /usr/local/bin directory
+  copy:
+    src: "/tmp/linux-amd64/helm"
+    dest: "/usr/local/bin/helm"
+    mode: 0755
+    remote_src: true
+  when: inventory_hostname in groups.k8s_master
+
+# helm 命令自动补全
+- name: helm autocompletion
+  lineinfile:
+    path: $HOME/.bashrc
+    line: "source <(helm completion bash)"
+    create: true
+  when: inventory_hostname in groups.k8s_master

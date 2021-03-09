@@ -36,3 +36,4 @@
   gather_facts: false
   roles:
     - { role: cni/calico }
+    - { role: helm }
