@@ -12,7 +12,7 @@
     - name: Backup base repo file
       copy:
         src: "{{ yum_repos_dir }}/CentOS-Base.repo"
-        dest: "{{ yum_repos_dir }}/CentOS-Base.repo.bak"
+        dest: "{{ yum_repos_dir }}/CentOS-Base.repo.old"
         remote_src: true
 
     - name: Remove old base repo file
